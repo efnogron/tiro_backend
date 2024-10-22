@@ -19,11 +19,7 @@ from livekit.agents.pipeline import VoicePipelineAgent
 from livekit.plugins import deepgram, openai, silero
 
 load_dotenv()
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s %(levelname)s %(name)s %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)],
-)
+
 logger = logging.getLogger("flashcard-demo")
 convex_site_url = os.getenv("CONVEX_SITE_URL")
 
@@ -104,8 +100,8 @@ class AssistantFnc(llm.FunctionContext):
         }
 
         # Add logging to inspect the body
-        logger.debug(f"Updating flashcard progress with body: {body}")
-        logger.info(
+        logger.info(f"Updating flashcard progress with body: {body}")
+        logger.debug(
             f"Types: userId: {self.user_id}, questionId: {self.current_flashcard.get('questionId')}, "
             f"performanceRating: {performance_rating}, userAnswer: {user_answer}, "
             f"topicId: {self.topic_id}"
@@ -148,14 +144,11 @@ async def entrypoint(ctx: JobContext):
         )  # Create our function context instance
         initial_chat_ctx = llm.ChatContext().append(
             text=(
-                "You are the flashcard assistant tiro. Your interface with users is voice. "
-                "You quiz the user on flashcards. "
+                "You are the study buddy tiro. Your interface with users is voice. You test users on flashcards. "
                 "You have access to the functions get_next_due_flashcard and update_flashcard_progress. "
                 "get_next_due_flashcard returns a flashcard with a question and an answer. Present the question to the user, don't reveal the answer until the user has attempted to answer the question. "
-                "When the user answers the question, you compare their response to the flashcard answer. It does not have to match with the exact wording, rather it should be factually correct. You then grade the user's answer either '1' or '3' (1 = wrong / no answer, 3 = correct). "
-                "Then you use update_flashcard_progress with your performance rating to record the user's progress. "
-                "If the user's answer had some factual mistakes, provide short feedback on how the answer could be improved, then immediately proceed asking the next question. "
-                "If the user's answer was good, immediately proceed to fetching and presenting the next question. "
+                "When the user answers the question, you compare their response to the flashcard answer. It does not have to match with the exact wording, rather it should be factually correct. You then grade the user's answer either 'wrong' or 'correct' . If the answer is wrong provide short feedback "
+                "Then you use update_flashcard_progress with your performance rating (1 = wrong / no answer, 3 = correct) to record the user's progress. (do not mention this and proceed asking the next question immediately once you are done)"
                 "Repeat this process until no more flashcards are available. If the user asks about some flashcard detail, answer all the questions to the best of your knowledge."
             ),
             role="system",
@@ -171,13 +164,13 @@ async def entrypoint(ctx: JobContext):
             vad=ctx.proc.userdata["vad"],
             stt=deepgram.STT(),
             llm=openai.LLM(model="gpt-4o-mini"),
-            tts=openai.TTS(),
+            tts=openai.TTS(voice="echo"),
             fnc_ctx=fnc_ctx,
             chat_ctx=initial_chat_ctx,
         )
         # Start the assistant. This will automatically publish a microphone track and listen to the participant.
         agent.start(ctx.room, participant)
-        logger.info(f"current room: {ctx.room}")
+        logger.debug(f"current room: {ctx.room}")
         await agent.say("Hello Luki! Lets practice some flashcards")
 
         async def on_shutdown():
