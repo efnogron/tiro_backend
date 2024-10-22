@@ -1,0 +1,35 @@
+app = "tiro-backend-worker" # Replace with your Fly.io app name
+
+kill_timeout = 300 # Allow up to 5 minutes for graceful shutdowns
+
+[build]
+dockerfile = "Dockerfile"
+
+[[vm]]
+cpu_kind = "performance"
+cpus = 2
+memory = 4096
+
+[env]
+PYTHONUNBUFFERED = "1"
+CONVEX_SITE_URL = "https://dynamic-mockingbird-784.convex.site"
+
+[deploy]
+strategy = "bluegreen"
+
+[experimental]
+cmd = ["python", "main.py", "start", "--log-level", "DEBUG"]
+
+[http_service]
+internal_port = 8081 # Port your app listens on (for health checks)
+force_https = true
+
+[checks]
+[checks.healthcheck]
+type = "http"
+port = 8081
+interval = "10s"
+timeout = "2s"
+method = "GET"
+path = "/"
+grace_period = "5s"
