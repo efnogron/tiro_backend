@@ -6,9 +6,8 @@ kill_timeout = 300 # Allow up to 5 minutes for graceful shutdowns
 dockerfile = "Dockerfile"
 
 [[vm]]
-cpu_kind = "performance"
-cpus = 2
-memory = 4096
+size = "shared-cpu-2x"
+memory = "1gb"
 
 [env]
 PYTHONUNBUFFERED = "1"

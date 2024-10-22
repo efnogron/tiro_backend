@@ -177,6 +177,7 @@ async def entrypoint(ctx: JobContext):
         )
         # Start the assistant. This will automatically publish a microphone track and listen to the participant.
         agent.start(ctx.room, participant)
+        logger.info(f"current room: {ctx.room}")
         await agent.say("Hello Luki! Lets practice some flashcards")
 
         async def on_shutdown():
