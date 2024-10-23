@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-import sys
 from typing import Annotated
 
 import aiohttp
