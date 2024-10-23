@@ -17,7 +17,7 @@ CONVEX_SITE_URL = "https://dynamic-mockingbird-784.convex.site"
 strategy = "bluegreen"
 
 [experimental]
-cmd = ["python", "main.py", "start", "--log-level", "DEBUG"]
+cmd = ["python", "worker-main.py", "start", "--log-level", "DEBUG"]
 
 [http_service]
 internal_port = 8081 # Port your app listens on (for health checks)
